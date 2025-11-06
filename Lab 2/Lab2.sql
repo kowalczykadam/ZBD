@@ -256,3 +256,76 @@ SELECT
 FROM employees e
 JOIN departments d
     ON e.department_id = d.department_id;
+    
+-- Zad. 14
+
+SELECT first_name, last_name, salary
+FROM employees
+WHERE salary < ANY (
+    SELECT salary
+    FROM employees
+    WHERE department_id = (
+        SELECT department_id
+        FROM departments
+        WHERE department_name = 'IT'
+    )
+);
+
+-- Zad. 15
+
+SELECT DISTINCT d.department_name
+FROM departments d
+JOIN employees e ON d.department_id = e.department_id
+WHERE e.salary > (
+    SELECT AVG(salary)
+    FROM employees
+);
+
+-- Zad. 16
+
+SELECT job_title, ROUND(AVG(salary), 2) AS avg_salary
+FROM employees e
+JOIN jobs j ON e.job_id = j.job_id
+GROUP BY job_title
+ORDER BY avg_salary DESC
+FETCH FIRST 5 ROWS ONLY;
+
+-- Zad. 17
+
+SELECT r.region_name,
+       COUNT(DISTINCT c.country_id) AS country_count,
+       COUNT(e.employee_id) AS employee_count
+FROM regions r
+LEFT JOIN countries c ON r.region_id = c.region_id
+LEFT JOIN locations l ON c.country_id = l.country_id
+LEFT JOIN departments d ON l.location_id = d.location_id
+LEFT JOIN employees e ON d.department_id = e.department_id
+GROUP BY r.region_name
+ORDER BY r.region_name;
+
+-- Zad. 18
+
+SELECT e.first_name, e.last_name, e.salary AS employee_salary,
+       m.first_name AS manager_first_name, m.last_name AS manager_last_name, m.salary AS manager_salary
+FROM employees e
+JOIN employees m ON e.manager_id = m.employee_id
+WHERE e.salary > m.salary;
+
+-- Zad. 19
+
+SELECT TO_CHAR(hire_date, 'Month', 'NLS_DATE_LANGUAGE=ENGLISH') AS month_name,
+       COUNT(*) AS employee_count
+FROM employees
+GROUP BY TO_CHAR(hire_date, 'Month', 'NLS_DATE_LANGUAGE=ENGLISH'),
+         TO_CHAR(hire_date, 'MM')
+ORDER BY TO_CHAR(hire_date, 'MM');
+
+--Zad. 20
+
+SELECT d.department_name,
+       ROUND(AVG(e.salary), 2) AS avg_salary
+FROM employees e
+JOIN departments d ON e.department_id = d.department_id
+GROUP BY d.department_name
+ORDER BY avg_salary DESC
+FETCH FIRST 3 ROWS ONLY;
